@@ -2,9 +2,9 @@
 
 A family-friendly chatbot that lives in one HTML page. Moss remembers your chat on this device, looks up Wikipedia, links Minecraft YouTube videos, opens Allrecipes, and already knows a few facts about Minecraft, FNAF, MrBeast, and Saurians Studio.
 
-**Live page (after GitHub Pages finishes):** https://glitchplays1.github.io/moss/
+**Live page (after GitHub Pages finishes):** https://glitchplays1.github.io/moss4.0/
 
-**Repo:** https://github.com/Glitchplays1/moss
+**Repo:** https://github.com/Glitchplays1/moss4.o
 
 ## Open it on your computer
 
