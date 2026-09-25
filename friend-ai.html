@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Moss — Your Friend AI</title>
+  <link rel="icon" href="moss-logo.png" type="image/png" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#5d9b3a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Moss" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --grass: #5d9b3a;
+      --grass-dark: #3d6b24;
+      --dirt: #8b5a2b;
+      --sky: #7ec8e3;
+      --night: #0f1724;
+      --panel: #152033;
+      --panel-2: #1c2b44;
+      --text: #f4f7fb;
+      --muted: #9fb0c8;
+      --accent: #7dff9a;
+      --gold: #ffd56a;
+      --bubble-me: #2b6cb0;
+      --bubble-ai: #24344d;
+      --danger: #ff7a7a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: Nunito, system-ui, sans-serif;
+      background:
+        radial-gradient(1200px 500px at 20% -10%, rgba(126,200,227,.25), transparent 50%),
+        linear-gradient(180deg, #1a2a3d 0%, var(--night) 40%, #0b1220 100%);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      background: linear-gradient(180deg, rgba(93,155,58,.35), rgba(21,32,51,.9));
+      border-bottom: 4px solid var(--grass-dark);
+    }
+    .logo {
+      width: 52px; height: 52px;
+      object-fit: contain;
+      background: #0f1724;
+      border: 2px solid #5d9b3a;
+      border-radius: 12px;
+      box-shadow: 3px 3px 0 #0006;
+    }
+    .brand h1 {
+      font-family: "Press Start 2P", system-ui, sans-serif;
+      font-size: 15px;
+      letter-spacing: 1px;
+    }
+    .brand p { color: var(--muted); font-size: 13px; margin-top: 4px; }
+    .status {
+      margin-left: auto;
+      font-size: 12px;
+      background: #16301c;
+      color: var(--accent);
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #2d6a3a;
+    }
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 0;
+    }
+    aside {
+      background: var(--panel);
+      border-right: 1px solid #2a3c58;
+      padding: 16px;
+      overflow: auto;
+    }
+    aside h2 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      color: var(--gold);
+      margin: 12px 0 8px;
+    }
+    .chip, button.chip {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid #314863;
+      border-radius: 10px;
+      padding: 9px 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 13px;
+    }
+    .chip:hover { border-color: var(--accent); }
+    .note { font-size: 12px; color: var(--muted); line-height: 1.45; }
+    #memoryBox {
+      background: #101a2b;
+      border: 1px solid #3a5478;
+      border-radius: 10px;
+      padding: 8px;
+      max-height: 180px;
+      overflow: auto;
+      font-size: 12px;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    #memoryBox li { margin: 0 0 6px 16px; }
+    .tiny { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+    .chat-wrap {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    #log {
+      flex: 1;
+      overflow: auto;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .msg {
+      max-width: min(720px, 92%);
+      padding: 12px 14px;
+      border-radius: 16px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .msg a { color: #9be7ff; }
+    .ai { background: var(--bubble-ai); border: 1px solid #334864; align-self: flex-start; }
+    .me { background: var(--bubble-me); align-self: flex-end; }
+    .who { font-size: 11px; color: var(--muted); margin-bottom: 4px; font-weight: 800; }
+    .cards { display: grid; gap: 8px; margin-top: 10px; }
+    .card {
+      background: #101a2b;
+      border: 1px solid #3a5478;
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .card a { font-weight: 800; text-decoration: none; }
+    .composer {
+      display: flex;
+      gap: 8px;
+      padding: 12px 14px 16px;
+      background: #101827;
+      border-top: 1px solid #2a3c58;
+    }
+    #q {
+      flex: 1;
+      border: 2px solid #3a5478;
+      background: #0d1624;
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font: inherit;
+      font-size: 16px;
+    }
+    #q:focus { outline: none; border-color: var(--accent); }
+    #go, #clear {
+      border: 0;
+      border-radius: 14px;
+      padding: 0 16px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    #go { background: var(--grass); color: #08140a; }
+    #clear { background: #3a2a2a; color: #ffd0d0; }
+    .typing { color: var(--muted); font-style: italic; align-self: flex-start; }
+    footer {
+      text-align: center;
+      font-size: 11px;
+      color: #7d8da3;
+      padding: 8px;
+    }
+    @media (max-width: 800px) {
+      main { grid-template-columns: 1fr; }
+      aside { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img class="logo" src="moss-logo.png" alt="Moss logo" />
+    <div class="brand">
+      <h1>MOSS</h1>
+      <p>Your friend AI · remembers this chat · looks things up</p>
+    </div>
+    <button class="chip" id="installBtn" type="button" hidden style="margin-left:auto;width:auto;margin-bottom:0;">Add to home screen</button>
+    <div class="status" id="net">Online lookup ready</div>
+  </header>
+  <main>
+    <aside>
+      <h2>Try asking</h2>
+      <button class="chip" data-q="When was Minecraft made?">When was Minecraft made?</button>
+      <button class="chip" data-q="Show me Minecraft YouTube videos">Minecraft YouTube videos</button>
+      <button class="chip" data-q="How many subscribers does MrBeast have?">MrBeast subscribers</button>
+      <button class="chip" data-q="Tell me about Saurians Studio">Saurians Studio</button>
+      <button class="chip" data-q="What is FNAF?">What is FNAF?</button>
+      <button class="chip" data-q="Give me a chocolate chip cookie recipe">Cookie recipe</button>
+      <h2>Chromebook</h2>
+      <p class="note">Open this site in Chrome, then use <b>Add to home screen</b> or Chrome menu → Cast, save and share → Create shortcut → Open as window.</p>
+      <button class="chip" id="installBtn2" type="button">Add to home screen</button>
+      <h2>Memory storage</h2>
+      <p class="tiny" id="memoryMeta">Loading memory…</p>
+      <div id="memoryBox">No saved facts yet. Say “remember that …”.</div>
+      <p class="note">Saved on this device (browser storage). Chat comes back after refresh. Follow-ups use the last topic.</p>
+      <button class="chip" id="exportMem">Download memory file</button>
+      <button class="chip" id="importMem">Load memory file</button>
+      <input id="importFile" type="file" accept="application/json,.json" hidden />
+      <button class="chip" id="forget">Forget taught facts</button>
+      <button class="chip" id="wipeAll">Wipe all memory</button>
+    </aside>
+    <section class="chat-wrap">
+      <div id="log"></div>
+      <form class="composer" id="form">
+        <input id="q" autocomplete="off" placeholder="Ask Moss anything friendly…" />
+        <button id="go" type="submit">Send</button>
+        <button id="clear" type="button">Clear</button>
+      </form>
+    </section>
+  </main>
+  <footer>Family-friendly helper. Live facts use Wikipedia. Subscriber counts change, so Moss also gives a search link. Open this file in a browser.</footer>
+
+  <script>
+    const logEl = document.getElementById("log");
+    const form = document.getElementById("form");
+    const input = document.getElementById("q");
+    const netEl = document.getElementById("net");
+
+    const STORE_KEY = "mossMemory.v2";
+    const OLD_FACTS_KEY = "mossTaught";
+    const MAX_MESSAGES = 80;
+
+    function blankStore() {
+      return {
+        version: 2,
+        updatedAt: Date.now(),
+        profile: { name: "" },
+        lastTopic: "",
+        lastPerson: "",
+        lastIntent: "",
+        taught: [],
+        messages: []
+      };
+    }
+
+    function loadStore() {
+      try {
+        const raw = localStorage.getItem(STORE_KEY);
+        if (raw) {
+          const data = JSON.parse(raw);
+          return Object.assign(blankStore(), data, {
+            profile: Object.assign({ name: "" }, data.profile || {}),
+            taught: Array.isArray(data.taught) ? data.taught : [],
+            messages: Array.isArray(data.messages) ? data.messages : []
+          });
+        }
+      } catch (e) {}
+      const store = blankStore();
+      try {
+        const old = JSON.parse(localStorage.getItem(OLD_FACTS_KEY) || "{}");
+        store.taught = Object.values(old).filter(Boolean).map((text, i) => ({
+          id: "old-" + i,
+          text: String(text),
+          created: Date.now()
+        }));
+      } catch (e) {}
+      return store;
+    }
+
+    const memory = loadStore();
+
+    function saveStore() {
+      memory.updatedAt = Date.now();
+      if (memory.messages.length > MAX_MESSAGES) {
+        memory.messages = memory.messages.slice(-MAX_MESSAGES);
+      }
+      try {
+        localStorage.setItem(STORE_KEY, JSON.stringify(memory));
+      } catch (e) {
+        netEl.textContent = "Memory storage is full";
+      }
+      renderMemory();
+    }
+
+    function renderMemory() {
+      const box = document.getElementById("memoryBox");
+      const meta = document.getElementById("memoryMeta");
+      const when = memory.updatedAt ? new Date(memory.updatedAt).toLocaleString() : "never";
+      const who = memory.profile.name ? "Friend: " + memory.profile.name + " · " : "";
+      meta.textContent = who + memory.messages.length + " chat lines · " + memory.taught.length + " facts · saved " + when;
+      if (!memory.taught.length && !memory.lastTopic && !memory.profile.name) {
+        box.innerHTML = "No saved facts yet. Say “remember that my favorite game is Minecraft”.";
+        return;
+      }
+      const bits = [];
+      if (memory.profile.name) bits.push("<div><b>Name:</b> " + esc(memory.profile.name) + "</div>");
+      if (memory.lastTopic) bits.push("<div><b>Last topic:</b> " + esc(memory.lastTopic) + "</div>");
+      if (memory.lastPerson) bits.push("<div><b>Last person:</b> " + esc(memory.lastPerson) + "</div>");
+      if (memory.taught.length) {
+        bits.push("<div><b>Facts</b><ul>" + memory.taught.map(f => "<li>" + esc(f.text) + "</li>").join("") + "</ul></div>");
+      }
+      box.innerHTML = bits.join("");
+    }
+
+    const KNOWN = {
+      minecraft: {
+        topic: "Minecraft",
+        text: "Minecraft first appeared to the public on May 17, 2009 (Classic), created by Markus “Notch” Persson. The full Java Edition 1.0 release was November 18, 2011 at MineCon. It is a sandbox building game by Mojang Studios (now part of Xbox Game Studios)."
+      },
+      fnaf: {
+        topic: "Five Nights at Freddy's",
+        text: "Five Nights at Freddy's (FNAF) is a 2014 survival-horror game series created by Scott Cawthon. The first game came out on August 8, 2014. You play a night guard at a pizza place and watch cameras. Later games, books, and a movie followed. Steel Wool and others have helped make newer games."
+      },
+      mrbeast: {
+        topic: "MrBeast",
+        person: "MrBeast",
+        text: "MrBeast (Jimmy Donaldson) is one of the biggest YouTubers. His main channel is youtube.com/@MrBeast. Around September 2026 public trackers showed about 518 million subscribers. Counts change every day, so tap a live search if you need the newest number."
+      },
+      saurians: {
+        topic: "Saurians Studio",
+        person: "Saurians Studio",
+        text: "Saurians Studio is a YouTube channel at youtube.com/@SauriansStudio-g7i. When this helper was built it had about 34 subscribers. Videos include SAURIANS: Pilot, SAURIANS II Teaser Trailer 1: A Story, and some Shorts. A small studio channel — a good one to cheer for!"
+      }
+    };
+
+    const YOUTUBERS = {
+      "mrbeast": { name: "MrBeast", handle: "@MrBeast", url: "https://www.youtube.com/@MrBeast", subs: "about 518 million (Sep 2026, changes daily)", height: "Public reports often list Jimmy Donaldson around 6'2\" / 188 cm. Heights are unofficial." },
+      "mr beast": { name: "MrBeast", handle: "@MrBeast", url: "https://www.youtube.com/@MrBeast", subs: "about 518 million (Sep 2026, changes daily)", height: "Public reports often list Jimmy Donaldson around 6'2\" / 188 cm. Heights are unofficial." },
+      "saurians studio": { name: "Saurians Studio", handle: "@SauriansStudio-g7i", url: "https://www.youtube.com/@SauriansStudio-g7i", subs: "about 34 (when this AI was built)", height: "No public height — this is a channel, not one famous actor." },
+      "saurians": { name: "Saurians Studio", handle: "@SauriansStudio-g7i", url: "https://www.youtube.com/@SauriansStudio-g7i", subs: "about 34 (when this AI was built)", height: "No public height listed." },
+      "notch": { name: "Notch (Markus Persson)", handle: null, url: "https://en.wikipedia.org/wiki/Markus_Persson", subs: "Not a main YouTube-stats person in this helper", height: "Not a well-locked official number in this helper." },
+      "dream": { name: "Dream", handle: "@Dream", url: "https://www.youtube.com/@Dream", subs: "Search YouTube for the live count", height: "Dream has said he is around 6'3\" / 191 cm. Unofficial." },
+      "markiplier": { name: "Markiplier", handle: "@markiplier", url: "https://www.youtube.com/@markiplier", subs: "Search YouTube for the live count", height: "Public listings often say about 6'2\" / 188 cm. Unofficial." }
+    };
+
+    const SPELL = {
+      spall: "spell",
+      recpie: "recipe",
+      recipie: "recipe",
+      minecaft: "Minecraft",
+      minecaft: "Minecraft",
+      minecraf: "Minecraft",
+      youtobe: "YouTube",
+      youtub: "YouTube",
+      suscribers: "subscribers",
+      subcribers: "subscribers",
+      hieght: "height",
+      fnaff: "FNAF",
+      fredys: "Freddy's"
+    };
+
+    function addMsg(role, html, skipSave) {
+      const wrap = document.createElement("div");
+      wrap.className = "msg " + (role === "me" ? "me" : "ai");
+      const who = document.createElement("div");
+      who.className = "who";
+      who.textContent = role === "me" ? "You" : "Moss";
+      wrap.appendChild(who);
+      const body = document.createElement("div");
+      body.innerHTML = html;
+      wrap.appendChild(body);
+      logEl.appendChild(wrap);
+      logEl.scrollTop = logEl.scrollHeight;
+      if (!skipSave) {
+        memory.messages.push({ role, html, text: body.innerText, at: Date.now() });
+        saveStore();
+      }
+    }
+
+    function restoreChat() {
+      logEl.innerHTML = "";
+      if (!memory.messages.length) {
+        greeting(true);
+        return;
+      }
+      memory.messages.forEach(m => addMsg(m.role, m.html || esc(m.text || ""), true));
+      renderMemory();
+    }
+
+    function linkCards(items) {
+      return `<div class="cards">${items.map(i => `<div class="card"><a href="${i.href}" target="_blank" rel="noopener">${esc(i.title)}</a><div>${esc(i.sub || "")}</div></div>`).join("")}</div>`;
+    }
+
+    function esc(s) {
+      return String(s || "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
+    }
+
+    function youtubeSearch(q) {
+      return "https://www.youtube.com/results?search_query=" + encodeURIComponent(q);
+    }
+    function wikiSearch(q) {
+      return "https://en.wikipedia.org/wiki/Special:Search?search=" + encodeURIComponent(q);
+    }
+    function recipeSearch(q) {
+      return "https://www.allrecipes.com/search?q=" + encodeURIComponent(q);
+    }
+    function socialblade(handle) {
+      const h = handle.replace(/^@/, "");
+      return "https://socialblade.com/youtube/handle/" + encodeURIComponent(h);
+    }
+
+    function normalize(s) {
+      return s.toLowerCase().replace(/[^\w\s'@]/g, " ").replace(/\s+/g, " ").trim();
+    }
+
+    function correctSpelling(text) {
+      const words = text.split(/(\s+)/);
+      const notes = [];
+      const fixed = words.map(w => {
+        const key = w.toLowerCase().replace(/[^a-z]/g, "");
+        if (SPELL[key] && SPELL[key].toLowerCase() !== key) {
+          notes.push(w + " → " + SPELL[key]);
+          return SPELL[key];
+        }
+        return w;
+      }).join("");
+      return { text: fixed, notes };
+    }
+
+    function detectTopic(t) {
+      const n = normalize(t);
+      if (/\b(fnaf|five nights|freddy)\b/.test(n)) return KNOWN.fnaf;
+      if (/\bminecraft|mine craft|mojang|notch\b/.test(n)) return KNOWN.minecraft;
+      if (/\bmr\s*beast|mrbeast|jimmy donaldson\b/.test(n)) return KNOWN.mrbeast;
+      if (/\bsaurians?( studio)?\b/.test(n)) return KNOWN.saurians;
+      return null;
+    }
+
+    function findPerson(t) {
+      const n = normalize(t);
+      for (const key of Object.keys(YOUTUBERS)) {
+        if (n.includes(key)) return YOUTUBERS[key];
+      }
+      const m = n.match(/how (?:tall|old|many subs(?:cribers)?) (?:is|does|do) (.+?)(?: have|$)/);
+      if (m) return { name: m[1].trim(), handle: null, url: wikiSearch(m[1]), subs: null, height: null, guessed: true };
+      return null;
+    }
+
+    async function wikiSummary(title) {
+      const url = "https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(title.replace(/ /g, "_"));
+      const res = await fetch(url, { headers: { "Accept": "application/json" } });
+      if (!res.ok) throw new Error("wiki");
+      const data = await res.json();
+      if (data.type === "disambiguation") return { title: data.title, extract: "That name can mean more than one thing. " + (data.extract || ""), url: data.content_urls?.desktop?.page };
+      return { title: data.title, extract: data.extract, url: data.content_urls?.desktop?.page || wikiSearch(title) };
+    }
+
+    async function wikiSearchTitle(q) {
+      const url = "https://en.wikipedia.org/w/api.php?action=opensearch&limit=1&namespace=0&format=json&origin=*&search=" + encodeURIComponent(q);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("search");
+      const data = await res.json();
+      return data[1] && data[1][0] ? data[1][0] : q;
+    }
+
+    function minecraftVideos(extra) {
+      const q = extra ? ("Minecraft " + extra) : "Minecraft";
+      return linkCards([
+        { title: "YouTube: " + q + " videos", href: youtubeSearch(q + " gameplay"), sub: "Family search for gameplay and builds" },
+        { title: "Minecraft official channel", href: "https://www.youtube.com/@Minecraft", sub: "Updates, trails, and official videos" },
+        { title: "Minecraft tutorials", href: youtubeSearch("Minecraft tutorial for beginners"), sub: "Learn to play" },
+        { title: "Saurians Studio", href: "https://www.youtube.com/@SauriansStudio-g7i", sub: "Your tracked channel · about 34 subs when saved" }
+      ]);
+    }
+
+    function greeting(first) {
+      const name = memory.profile.name ? ", " + esc(memory.profile.name) : "";
+      addMsg("ai", "Hey" + name + ", I'm <b>Moss</b> — a friend AI that lives in this page.<br><br>Your chat and facts are saved in this browser’s memory storage. Follow-ups like <i>who made it?</i> use the last topic. Say <i>remember that …</i> or <i>my name is …</i>.", first);
+    }
+
+    function followUpRewrite(raw) {
+      const n = normalize(raw);
+      const topic = memory.lastTopic || memory.lastPerson;
+      if (!topic) return raw;
+      if (/^(who made it|who created it|who invented it|who is it made by|who made that|who created that)\??$/.test(n)) {
+        return "Who created " + topic + "?";
+      }
+      if (/^(what is it|what is that|explain it|explain that|what does it mean)\??$/.test(n)) {
+        return "What is " + topic + "?";
+      }
+      if (/^(how old is (he|she|they|it)|how old)\??$/.test(n)) {
+        return "How old is " + (memory.lastPerson || topic) + "?";
+      }
+      if (/^(how tall is (he|she|they|it)|how tall)\??$/.test(n)) {
+        return "How tall is " + (memory.lastPerson || topic) + "?";
+      }
+      if (/^(how many subscribers|how many subs|their subs|their subscribers)\??$/.test(n)) {
+        return "How many subscribers does " + (memory.lastPerson || topic) + " have?";
+      }
+      if (/^(when (was|is) it (made|released|created)|when did it come out)\??$/.test(n)) {
+        return "When was " + topic + " made?";
+      }
+      return raw;
+    }
+
+    async function reply(userText) {
+      const spell = correctSpelling(userText);
+      let text = followUpRewrite(spell.text.trim());
+      const n = normalize(text);
+
+      if (/^(my name is|i am|i'm|im)\s+/.test(n)) {
+        const name = text.replace(/^(my name is|i am|i'm|im)\s+/i, "").replace(/[!.]+$/, "").trim();
+        if (name) {
+          memory.profile.name = name.slice(0, 40);
+          saveStore();
+          return "Nice to meet you, <b>" + esc(memory.profile.name) + "</b>. I saved your name in memory storage.";
+        }
+      }
+
+      if (n.startsWith("remember that ") || n.startsWith("remember ")) {
+        const fact = text.replace(/^remember( that)? /i, "").trim();
+        if (fact) {
+          memory.taught.push({ id: "f-" + Date.now(), text: fact, created: Date.now() });
+          saveStore();
+          return "Saved to memory storage: <b>" + esc(fact) + "</b>";
+        }
+      }
+
+      if (n.startsWith("forget ")) {
+        const needle = n.replace(/^forget /, "");
+        const before = memory.taught.length;
+        memory.taught = memory.taught.filter(f => !normalize(f.text).includes(needle));
+        saveStore();
+        return before === memory.taught.length ? "I did not find that fact." : "Forgot matching facts.";
+      }
+
+      const taughtHit = memory.taught.find(f => n.includes(normalize(f.text).slice(0, 24)) || normalize(f.text).includes(n));
+      if (n.startsWith("what do you remember") || n === "memory" || n === "show memory") {
+        const facts = memory.taught.map(f => f.text);
+        const last = memory.lastTopic ? "Last topic: " + memory.lastTopic : "No last topic yet.";
+        const name = memory.profile.name ? "Your name: " + memory.profile.name + "<br>" : "";
+        return name + (facts.length ? "Saved facts:<br>- " + facts.map(esc).join("<br>- ") + "<br><br>" : "No taught facts yet.<br>") + last;
+      }
+
+      if (/\b(hello|hi|hey|yo|sup|whats up|what's up)\b/.test(n) && n.split(" ").length < 6) {
+        return "Hey! I'm Moss, hanging out and ready to help. Want Minecraft videos, a recipe, a game fact, or a YouTuber lookup?";
+      }
+
+      if (/\b(who are you|what are you|your name)\b/.test(n)) {
+        return "I'm Moss, a friend chatbot built into this HTML page. I am not a giant cloud AI. I use rules, memory on this device, and Wikipedia when the internet is allowed.";
+      }
+
+      // Videos
+      if (/\b(youtube|video|videos|vid|vids|watch)\b/.test(n)) {
+        memory.lastIntent = "videos";
+        const extra = text.replace(/.*(youtube|videos?|vids?|watch)\s*(for|about|of)?/i, "").trim();
+        const q = extra && extra.length > 1 ? extra : "Minecraft";
+        memory.lastTopic = /minecraft/i.test(q) ? "Minecraft" : q;
+        return "I keep video picks on YouTube, and I start with Minecraft-friendly searches unless you name something else.<br>" + minecraftVideos(/minecraft/i.test(q) ? extra.replace(/minecraft/ig, "").trim() : q);
+      }
+
+      // Recipes
+      if (/\b(recipe|recipes|cook|cooking|how do i make|how to make)\b/.test(n)) {
+        memory.lastIntent = "recipe";
+        let dish = text.replace(/.*?(recipe for|recipes for|how do i make|how to make|cook|cooking)\s*/i, "");
+        dish = dish.replace(/recipe[s]?/ig, "").trim() || "easy dinner";
+        memory.lastTopic = dish;
+        return "I send you to Allrecipes, a giant recipe site.<br>" + linkCards([
+          { title: "Allrecipes search: " + dish, href: recipeSearch(dish), sub: "www.allrecipes.com" },
+          { title: "Allrecipes home", href: "https://www.allrecipes.com/", sub: "Browse popular recipes" }
+        ]);
+      }
+
+      // Subscribers
+      if (/\b(subscriber|subscribers|subs)\b/.test(n)) {
+        const person = findPerson(text) || (memory.lastPerson && YOUTUBERS[normalize(memory.lastPerson)]) || null;
+        if (person) {
+          memory.lastPerson = person.name;
+          memory.lastTopic = person.name;
+          const extra = person.url ? linkCards([
+            { title: person.name + " on YouTube", href: person.url },
+            { title: "Live-ish stats search", href: person.handle ? socialblade(person.handle) : youtubeSearch(person.name + " subscribers") }
+          ]) : "";
+          return (person.subs ? (person.name + " has <b>" + esc(person.subs) + "</b>. ") : "I don’t have a locked subscriber number for " + esc(person.name) + ". ") +
+            "Counts change, so use a live page for the newest number.<br>" + extra;
+        }
+        const guess = text.replace(/.*(?:subscribers does|subs does|subscribers do|how many subscribers|how many subs)\s*/i, "").replace(/\shave\??/i, "").trim();
+        memory.lastPerson = guess;
+        memory.lastTopic = guess;
+        return "I don’t keep a live subscriber API (YouTube needs a private key). Here are places to check <b>" + esc(guess || "that creator") + "</b>.<br>" +
+          linkCards([
+            { title: "YouTube search", href: youtubeSearch(guess) },
+            { title: "Social Blade search", href: "https://socialblade.com/youtube/search/" + encodeURIComponent(guess) }
+          ]);
+      }
+
+      // Height
+      if (/\b(how tall|height|how high is)\b/.test(n)) {
+        const person = findPerson(text);
+        const name = person ? person.name : (memory.lastPerson || text.replace(/how tall is/i, "").trim());
+        memory.lastPerson = name;
+        memory.lastTopic = name;
+        if (person && person.height) {
+          return esc(person.name) + ": " + esc(person.height) + "<br>" + linkCards([{ title: "Wikipedia / source search", href: person.url || wikiSearch(name) }]);
+        }
+        try {
+          const title = await wikiSearchTitle(name);
+          const w = await wikiSummary(title);
+          return "I looked up <b>" + esc(w.title) + "</b>. Wikipedia summaries sometimes include height for famous people.<br><br>" + esc(w.extract || "No summary.") +
+            "<br>" + linkCards([{ title: "Open Wikipedia", href: w.url || wikiSearch(name) }]);
+        } catch (e) {
+          return "I couldn’t fetch a live page. Try this:<br>" + linkCards([{ title: "Search height of " + name, href: wikiSearch(name + " height") }]);
+        }
+      }
+
+      // Age
+      if (/\b(how old|age of|when was .+ born)\b/.test(n)) {
+        const person = findPerson(text);
+        const name = person ? person.name : (memory.lastPerson || text.replace(/how old is/i, "").trim());
+        memory.lastPerson = name;
+        memory.lastTopic = name;
+        try {
+          const title = await wikiSearchTitle(name);
+          const w = await wikiSummary(title);
+          return "Age changes every birthday, so I use Wikipedia.<br><br><b>" + esc(w.title) + "</b><br>" + esc(w.extract || "") +
+            "<br>" + linkCards([{ title: "Wikipedia page", href: w.url || wikiSearch(name) }]);
+        } catch (e) {
+          return "Couldn’t reach Wikipedia. " + linkCards([{ title: "Search " + name, href: wikiSearch(name) }]);
+        }
+      }
+
+      const known = detectTopic(text);
+      if (known) {
+        memory.lastTopic = known.topic;
+        if (known.person) memory.lastPerson = known.person;
+        let extra = "";
+        if (/minecraft/i.test(known.topic) && /\b(video|youtube)\b/.test(n)) extra = minecraftVideos();
+        return known.text + (extra ? "<br>" + extra : "") +
+          "<br>" + linkCards([
+            { title: "Wikipedia: " + known.topic, href: wikiSearch(known.topic) },
+            { title: "YouTube: " + known.topic, href: youtubeSearch(known.topic) }
+          ]);
+      }
+
+      if (taughtHit && n.length < 80) {
+        return "From memory storage: " + esc(taughtHit.text);
+      }
+
+      // General lookup
+      const cleaned = text.replace(/^(what is|what's|who is|who's|tell me about|explain|when was|when were|when did)\s+/i, "").replace(/\?+$/, "");
+      memory.lastTopic = cleaned;
+      try {
+        const title = await wikiSearchTitle(cleaned);
+        const w = await wikiSummary(title);
+        netEl.textContent = "Looked up Wikipedia";
+        return "I looked on the internet (Wikipedia) for <b>" + esc(w.title) + "</b>.<br><br>" + esc(w.extract || "No short summary found.") +
+          "<br>" + linkCards([
+            { title: "Read more on Wikipedia", href: w.url || wikiSearch(cleaned) },
+            { title: "YouTube videos", href: youtubeSearch(/game|minecraft|fnaf/i.test(cleaned) ? cleaned : "Minecraft " + cleaned) },
+            { title: "Allrecipes if this is food", href: recipeSearch(cleaned) }
+          ]);
+      } catch (e) {
+        netEl.textContent = "Offline lookup — using local knowledge";
+        return "I couldn’t reach Wikipedia from this page (some browsers block it). I still remember our chat.<br>" +
+          linkCards([
+            { title: "Search Wikipedia", href: wikiSearch(cleaned) },
+            { title: "Minecraft videos", href: youtubeSearch("Minecraft " + cleaned) },
+            { title: "Allrecipes", href: recipeSearch(cleaned) }
+          ]);
+      }
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = "";
+      addMsg("me", esc(text));
+      const tip = document.createElement("div");
+      tip.className = "typing";
+      tip.textContent = "Moss is thinking…";
+      logEl.appendChild(tip);
+      logEl.scrollTop = logEl.scrollHeight;
+      try {
+        const html = await reply(text);
+        tip.remove();
+        addMsg("ai", html);
+      } catch (err) {
+        tip.remove();
+        addMsg("ai", "Something broke on that lookup. Try another question or open a search link.");
+      }
+    });
+
+    document.getElementById("clear").onclick = () => {
+      logEl.innerHTML = "";
+      memory.messages = [];
+      memory.lastTopic = "";
+      memory.lastPerson = "";
+      saveStore();
+      greeting();
+    };
+    document.getElementById("forget").onclick = () => {
+      memory.taught = [];
+      saveStore();
+      addMsg("ai", "Taught facts cleared. Chat history is still saved until you press Clear or Wipe all memory.");
+    };
+    document.getElementById("wipeAll").onclick = () => {
+      const empty = blankStore();
+      Object.keys(memory).forEach(k => delete memory[k]);
+      Object.assign(memory, empty);
+      localStorage.removeItem(STORE_KEY);
+      localStorage.removeItem(OLD_FACTS_KEY);
+      logEl.innerHTML = "";
+      saveStore();
+      greeting();
+      addMsg("ai", "All memory storage on this device is empty now.");
+    };
+    document.getElementById("exportMem").onclick = () => {
+      saveStore();
+      const blob = new Blob([JSON.stringify(memory, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "moss-memory.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    };
+    document.getElementById("importMem").onclick = () => document.getElementById("importFile").click();
+    document.getElementById("importFile").onchange = (ev) => {
+      const file = ev.target.files && ev.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          const next = Object.assign(blankStore(), data);
+          next.taught = Array.isArray(next.taught) ? next.taught : [];
+          next.messages = Array.isArray(next.messages) ? next.messages : [];
+          Object.keys(memory).forEach(k => delete memory[k]);
+          Object.assign(memory, next);
+          saveStore();
+          restoreChat();
+          addMsg("ai", "Loaded memory file. I remember " + memory.taught.length + " facts and " + memory.messages.length + " chat lines.");
+        } catch (e) {
+          addMsg("ai", "That file was not valid Moss memory.");
+        }
+      };
+      reader.readAsText(file);
+      ev.target.value = "";
+    };
+    document.querySelectorAll("button.chip[data-q]").forEach(btn => {
+      btn.onclick = () => {
+        input.value = btn.getAttribute("data-q");
+        form.requestSubmit();
+      };
+    });
+
+    restoreChat();
+  </script>
+  <script src="pwa.js"></script>
+</body>
+</html>
